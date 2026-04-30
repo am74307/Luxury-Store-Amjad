@@ -33,10 +33,14 @@ body, .stApp {
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 12px;
 }
+.stDataFrame {
+    overflow-x: auto;
+}
 
-/* Hide Streamlit default background from elements */
+/* Hide Streamlit default background from elements and set desktop width */
 [data-testid="stAppViewBlockContainer"] {
     background: transparent !important;
+    max-width: 90% !important;
 }
 
 /* Adjust dataframe/table alignment */
@@ -216,6 +220,9 @@ input, select {
 }
 
 /* Tabs styling */
+[data-testid="stTabs"] [data-baseweb="tab-list"] {
+    flex-wrap: wrap !important;
+}
 [data-testid="stTabs"] button {
     background: rgba(255, 255, 255, 0.05) !important;
     border-radius: 8px 8px 0 0;
@@ -242,21 +249,25 @@ input, select {
 
 /* Responsive Mobile Adjustments */
 @media (max-width: 768px) {
+    [data-testid="stAppViewBlockContainer"] {
+        max-width: 100% !important;
+        padding: 1rem !important;
+    }
     .hero-container {
-        padding: 2rem 1rem;
+        padding: 1.5rem 1rem;
         margin-bottom: 1rem;
     }
     .hero-title {
-        font-size: 2rem !important;
+        font-size: 1.8rem !important;
     }
     .hero-subtitle {
-        font-size: 1.1rem !important;
+        font-size: 1rem !important;
     }
     .sidebar-footer {
         padding: 1rem;
     }
     .social-links a {
-        font-size: 1.5rem;
+        font-size: 1.2rem;
     }
 }
 </style>
