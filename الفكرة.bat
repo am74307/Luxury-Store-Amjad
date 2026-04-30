@@ -1,0 +1,9 @@
+@echo off
+echo جارٍ تجهيز بيئة متجر الفخامة...
+python -m venv venv
+call venv\Scripts\activate
+echo جارٍ تثبيت المكتبات (مرة واحدة فقط)...
+pip install -r requirements.txt
+echo تم التجهيز بنجاح! سيتم فتح المتجر الآن...
+streamlit run app.py
+pause
