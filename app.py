@@ -247,11 +247,22 @@ input, select {
     box-shadow: 0 8px 25px rgba(138, 43, 226, 0.4);
 }
 
+/* Hide mobile elements on desktop */
+@media (min-width: 769px) {
+    .mobile-only-wrapper + div { display: none !important; }
+    .mobile-floating-footer { display: none !important; }
+}
+
 /* Responsive Mobile Adjustments */
 @media (max-width: 768px) {
+    /* Hide sidebar completely on mobile */
+    [data-testid="collapsedControl"] { display: none !important; }
+    [data-testid="stSidebar"] { display: none !important; }
+
     [data-testid="stAppViewBlockContainer"] {
         max-width: 100% !important;
         padding: 1rem !important;
+        padding-bottom: 120px !important;
     }
     .hero-container {
         padding: 1.5rem 1rem;
@@ -263,12 +274,50 @@ input, select {
     .hero-subtitle {
         font-size: 1rem !important;
     }
-    .sidebar-footer {
+    
+    /* Floating Footer Styles */
+    .mobile-floating-footer {
+        display: block;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(15, 0, 30, 0.85) !important;
+        backdrop-filter: blur(15px) !important;
+        -webkit-backdrop-filter: blur(15px) !important;
+        border-top: 1px solid rgba(138, 43, 226, 0.4);
         padding: 1rem;
+        z-index: 9999;
+        text-align: center;
+        box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.6);
     }
-    .social-links a {
-        font-size: 1.2rem;
+    .mobile-floating-footer p {
+        font-family: 'Cairo', sans-serif !important;
+        font-weight: 700;
+        font-size: 1rem;
+        color: #e0e0e0;
+        margin-bottom: 0.3rem;
     }
+    .mobile-floating-footer a.dev-name {
+        text-decoration: none;
+        color: #d8b4fe;
+        font-weight: 800;
+        margin-bottom: 0.8rem;
+        display: inline-block;
+    }
+    .mobile-floating-footer .social-links {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+    .mobile-floating-footer .social-links a {
+        font-size: 1.6rem;
+        color: #b0b0b0;
+        transition: all 0.3s ease;
+    }
+    .mobile-floating-footer .social-links .instagram:active { color: #E1306C; }
+    .mobile-floating-footer .social-links .facebook:active { color: #1877F2; }
+    .mobile-floating-footer .social-links .whatsapp:active { color: #25D366; }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -282,26 +331,39 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- Authentication & Role System ---
-st.sidebar.markdown("### 👤 الملف الشخصي")
-role = st.sidebar.selectbox("من يستخدم التطبيق؟", ["البائع", "المدير"])
+admin_pass = "1234"
+try:
+    if "admin_password" in st.secrets:
+        admin_pass = st.secrets["admin_password"]
+except Exception:
+    pass
 
 is_admin = False
-if role == "المدير":
-    password = st.sidebar.text_input("كلمة المرور", type="password")
-    
-    # Check st.secrets for cloud deployment, fallback to '1234' for local testing
-    admin_pass = "1234"
-    try:
-        if "admin_password" in st.secrets:
-            admin_pass = st.secrets["admin_password"]
-    except Exception:
-        pass
 
-    if password == admin_pass:
+# 1. Desktop Authentication (Sidebar)
+st.sidebar.markdown("### 👤 الملف الشخصي")
+role_desktop = st.sidebar.selectbox("من يستخدم التطبيق؟", ["البائع", "المدير"], key="role_desktop")
+if role_desktop == "المدير":
+    password_desktop = st.sidebar.text_input("كلمة المرور", type="password", key="pass_desktop")
+    if password_desktop == admin_pass:
         st.sidebar.success("تم تسجيل الدخول كمدير")
         is_admin = True
-    elif password != "":
+    elif password_desktop != "":
         st.sidebar.error("كلمة المرور خاطئة")
+
+# 2. Mobile Authentication (Main Body)
+st.markdown('<div class="mobile-only-wrapper"></div>', unsafe_allow_html=True)
+mobile_auth_container = st.container()
+with mobile_auth_container:
+    st.markdown("### 👤 الملف الشخصي")
+    role_mobile = st.selectbox("من يستخدم التطبيق؟", ["البائع", "المدير"], key="role_mobile")
+    if role_mobile == "المدير":
+        password_mobile = st.text_input("كلمة المرور", type="password", key="pass_mobile")
+        if password_mobile == admin_pass:
+            st.success("تم تسجيل الدخول كمدير")
+            is_admin = True
+        elif password_mobile != "":
+            st.error("كلمة المرور خاطئة")
 
 # Create tabs
 if is_admin:
@@ -420,10 +482,23 @@ if is_admin:
         st.write("السمة الحالية: **Luxury Dark Glassmorphism** 💜")
         st.write("الخط المستخدم: **Cairo**")
 
-# --- Sidebar Footer ---
+# --- Sidebar Footer (Desktop) ---
 st.sidebar.markdown("""
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <div class="sidebar-footer">
+    <p>تم التطوير بواسطة</p>
+    <a href="mailto:amjadsallam566@gmail.com" class="dev-name">المهندس أمجد سلام</a>
+    <div class="social-links">
+        <a href="https://wa.me/771158182" target="_blank" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
+        <a href="https://www.instagram.com/amjadsa11am?igsh=bHFveTRkcWFyOHdo" target="_blank" class="instagram"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.facebook.com/share/1FUNSTGsg7/" target="_blank" class="facebook"><i class="fab fa-facebook"></i></a>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# --- Floating Footer (Mobile) ---
+st.markdown("""
+<div class="mobile-floating-footer">
     <p>تم التطوير بواسطة</p>
     <a href="mailto:amjadsallam566@gmail.com" class="dev-name">المهندس أمجد سلام</a>
     <div class="social-links">
